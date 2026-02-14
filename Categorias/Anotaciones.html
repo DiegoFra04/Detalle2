@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mich💗 - Anotaciones</title>
+    <link rel="stylesheet" href="css/anotaciones.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos adicionales para los controles movibles */
+        .draggable-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            z-index: 1000;
+        }
+        
+        .draggable-text {
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        
+        .draggable-heart {
+            display: inline-block;
+            font-size: 24px;
+            text-shadow: 0 0 10px rgba(255, 107, 139, 0.5);
+        }
+        
+        .drag-handle {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: #3cb371;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            color: white;
+            font-size: 12px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        
+        .delete-handle {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 30px;
+            height: 30px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: #4169e1;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        
+        /* Cuando el elemento está seleccionado, mostrar controles */
+        .draggable-element.selected {
+            outline: 2px dashed #3cb371;
+            box-shadow: 0 0 10px rgba(60, 179, 113, 0.3);
+        }
+        
+        .draggable-element.selected .drag-handle,
+        .draggable-element.selected .delete-handle,
+        .draggable-element.selected .resize-handle {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Estilos para evitar selección de texto */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* Posición de la guía */
+        .position-guide {
+            display: none;
+            position: absolute;
+            pointer-events: none;
+            z-index: 999;
+            border-style: dashed;
+        }
+        
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3cb371;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* NUEVO: Indicador de tamaño del borrador */
+        .eraser-size-indicator {
+            position: absolute;
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px dashed #ff6b6b;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+        
+        .eraser-info {
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="no-select">
+    <!-- Header con efecto agua -->
+    <header class="floral-header">
+        <div class="header-overlay">
+            <div class="header-content">
+                <div class="water-title-container">
+                    <h1 class="cursive-title water-text">Todo sobre Mich <span class="water-hearts">💕</span></h1>
+                    <div class="water-effect"></div>
+                    <div class="water-effect water-effect-2"></div>
+                    <div class="water-effect water-effect-3"></div>
+                </div>
+                <p class="subtitle">Una página hecha con cariño para alguien especial</p>
+                <div class="floral-decoration">
+                    <i class="fas fa-heart water-drop"></i>
+                    <i class="fas fa-music water-drop"></i>
+                    <i class="fas fa-heart water-drop"></i>
+                </div>
+            </div>
+        </div>
+        <div class="floral-border"></div>
+    </header>
+
+    <main>
+        <!-- Menú de navegación -->
+        <nav class="soft-menu">
+          <a class="menu-btn" href="index.html"><i class="fas fa-home"></i><span>Inicio</span></a>
+          <a class="menu-btn" href="Cosas.html"><i class="fas fa-heart"></i><span>Cosas que me gustan</span></a>
+          <a class="menu-btn active" href="Anotaciones.html"><i class="fas fa-book"></i><span>Anotaciones</span></a>
+        </nav>
+        
+        <!-- Tarjeta de información principal -->
+        <section class="notes-section">
+            <div class="notes-content">
+                <h2 class="notes-title">Mi Persona Especial <span class="water-emoji">👑💖</span></h2>
+                
+                <div class="profile-card">
+                    <div class="profile-image-container">
+                        <div class="profile-frame">
+                            <div class="profile-img-placeholder">
+                                <img src="lvy.jpeg" alt="Foto de Mich">
+                                <div class="profile-overlay">
+                                    <p>Mich 💕</p>
+                                    <p class="pretendiente">Pretendiente: Diego</p>
+                                </div>
+                            </div>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    <span class="stat-label">Cumpleaños</span>
+                                    <span class="stat-value">14 de Mayo</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-heart"></i>
+                                    <span class="stat-label">Signo</span>
+                                    <span class="stat-value">Tauro ♉</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-palette"></i>
+                                    <span class="stat-label">Color Favorito</span>
+                                    <span class="stat-value">Rosa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-info">
+                        <h3 class="profile-name">Grethel Michelle Parra Zavala</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="fas fa-cake-candles"></i>
+                                <div class="info-content">
+                                    <h4>Edad</h4>
+                                    <p>18 años</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-music"></i>
+                                <div class="info-content">
+                                    <h4>Género Musical Favorito</h4>
+                                    <p>Rock</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-candy-cane"></i>
+                                <div class="info-content">
+                                    <h4>Chocolate preferido</h4>
+                                    <p>El chocolate blanco</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="interactive-badges">
+                            <div class="badge" data-tooltip="Se chivea muy fácil jijiji">
+                                <i class="fas fa-smile-beam"></i>
+                                <span>Linda</span>
+                            </div>
+                            <div class="badge" data-tooltip="Astigmatismo en un ojo y miopía en el otro">
+                                <i class="fas fa-eye"></i>
+                                <span>Usa lentes</span>
+                            </div>
+                            <div class="badge" data-tooltip="Hermosa por dentro y por fuera">
+                                <i class="fas fa-star"></i>
+                                <span>Hermosa</span>
+                            </div>
+                            <div class="badge" data-tooltip="54 kg actualmente, pronto menos">
+                                <i class="fas fa-dumbbell"></i>
+                                <span>Fit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección de Música MEJORADA -->
+        <section class="music-section">
+            <div class="notes-content">
+                <h2 class="notes-title">Su Mundo Musical <span class="water-emoji">🎵🎸</span></h2>
+                
+                <div class="music-player">
+                    <div class="song-detail-container">
+                        <div class="song-header">
+                            <div class="song-album-art">
+                                <i class="fas fa-compact-disc"></i>
+                            </div>
+                            <div class="song-info-detail">
+                                <h3>"No Dejes Que" - Caifanes</h3>
+                                <p>Canción que te gusta mucho</p>
+                                <div class="song-meta">
+                                    <span class="song-tag">Rock en Español</span>
+                                    <span class="song-tag">Clásico</span>
+                                    <span class="song-tag">Favorita</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="song-lyrics">
+                            <h4><i class="fas fa-quote-right"></i> Fragmento de la canción</h4>
+                            <p>"No dejes que...<br>
+                            Se vaya el tiempo sin saber por qué...<br>
+                            No dejes que...<br>
+                            Se apague el sol sin poderlo ver..."</p>
+                        </div>
+                        
+                        <div class="song-player-controls">
+                            <button class="song-btn youtube" onclick="openYouTube()">
+                                <i class="fab fa-youtube"></i> Escuchar en YouTube
+                            </button>
+                            <button class="song-btn spotify" onclick="openSpotify()">
+                                <i class="fab fa-spotify"></i> Escuchar en Spotify
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bands-grid">
+                        <h3><i class="fas fa-guitar"></i> Bandas Favoritas</h3>
+                        <div class="bands-container">
+                            <div class="band-card">
+                                <div class="band-icon">
+                                    <i class="fas fa-volume-up"></i>
+                                </div>
+                                <h4>The Strokes</h4>
+                                <p>Rock alternativo</p>
+                            </div>
+                            <div class="band-card">
+                                <div class="band-icon">
+                                    <i class="fas fa-music"></i>
+                                </div>
+                                <h4>Caifanes</h4>
+                                <p>Rock en español</p>
+                            </div>
+                            <div class="band-card">
+                                <div class="band-icon">
+                                    <i class="fas fa-headphones"></i>
+                                </div>
+                                <h4>Serbia</h4>
+                                <p>Indie rock</p>
+                            </div>
+                            <div class="band-card">
+                                <div class="band-icon">
+                                    <i class="fas fa-record-vinyl"></i>
+                                </div>
+                                <h4>Enjambre</h4>
+                                <p>Rock psicodélico</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección de Familia y Gustos -->
+        <section class="family-section">
+            <div class="notes-content">
+                <h2 class="notes-title">Familia, Aspiraciones y Gustos <span class="water-emoji">👨‍👩‍👧‍👦🌸</span></h2>
+                
+                <div class="family-content">
+                    <div class="family-info">
+                        <div class="family-tree-container">
+                            <h3><i class="fas fa-tree"></i> Árbol Familiar</h3>
+                            <div class="family-tree">
+                                <div class="tree-row parents-row">
+                                    <div class="tree-member">
+                                        <i class="fas fa-male"></i>
+                                        <span>Papá</span>
+                                    </div>
+                                    <div class="tree-member">
+                                        <i class="fas fa-female"></i>
+                                        <span>Mamá</span>
+                                    </div>
+                                </div>
+                                <div class="tree-connector"></div>
+                                <div class="tree-row children-row">
+                                    <div class="tree-member">
+                                        <i class="fas fa-female"></i>
+                                        <span>Hermana</span>
+                                    </div>
+                                    <div class="tree-member">
+                                        <i class="fas fa-female"></i>
+                                        <span>Hermana</span>
+                                    </div>
+                                    <div class="tree-member main-member">
+                                        <i class="fas fa-heart"></i>
+                                        <span>Mich 💕</span>
+                                    </div>
+                                    <div class="tree-member">
+                                        <i class="fas fa-male"></i>
+                                        <span>Hermano</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="aspirations-card">
+                            <h3><i class="fas fa-graduation-cap"></i> Aspiraciones</h3>
+                            <ul class="aspirations-list">
+                                <li>
+                                    <i class="fas fa-video"></i>
+                                    <div>
+                                        <strong>Crear contenido</strong>
+                                        <p>Seré su fan número 1</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fas fa-university"></i>
+                                    <div>
+                                        <strong>Ciencias de la comunicación</strong>
+                                        <p>Lo que quiere estudiar</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fas fa-hand-sparkles"></i>
+                                    <div>
+                                        <strong>Ser buena haciendo uñas</strong>
+                                        <p>Te dejare pintarme las uñas c:</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flowers-section">
+                        <h3><i class="fas fa-spa"></i> Flores Favoritas</h3>
+                        <div class="flower-card">
+                            <div class="flower-image">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="flower-info">
+                                <h4>Lirios Blancos</h4>
+                                <p>Sus flores favoritas, símbolo de pureza y elegancia que representan su belleza interior y exterior.</p>
+                                <div class="flower-quote">
+                                    <i class="fas fa-quote-left"></i>
+                                    <p>Los lirios blancos son muy hermosos, perfectos para una chica hermosa como tu</p>
+                                    <i class="fas fa-quote-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="interactive-flower">
+                            <button class="flower-btn" id="plantLilyBtn" onclick="growFlower()">
+                                <i class="fas fa-seedling"></i>
+                                Aprieta el boton para crear un lirio 
+                            </button>
+                            <div class="flower-growth" id="flowerGrowth">
+                                <!-- La flor crecerá aquí -->
+                            </div>
+                            <div class="flower-message-container" id="flowerMessageContainer">
+                                <!-- Mensaje aparecerá aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección Interactiva - Lo que le gusta en el amor -->
+        <section class="love-section">
+            <div class="notes-content">
+                <h2 class="notes-title">Para Enamorar a Mich <span class="water-emoji">💘✨</span></h2>
+                <p class="section-subtitle">Según Mich, esto es lo que necesita para enamorarse:</p>
+                
+                <div class="love-grid">
+                    <div class="love-card" data-step="1">
+                        <div class="love-number">1</div>
+                        <div class="love-icon">
+                            <i class="fas fa-heart-circle-check"></i>
+                        </div>
+                        <h3>Interés</h3>
+                        <p>Tiene que mostrar su genuino interés en mich, sus gustos, sueños y pensamientos.</p>
+                    </div>
+                    
+                    <div class="love-card" data-step="2">
+                        <div class="love-number">2</div>
+                        <div class="love-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3>Ser detallista</h3>
+                        <p>Los grandes y pequeños detalles lo son todo para mich .</p>
+                    </div>
+                    
+                    <div class="love-card" data-step="3">
+                        <div class="love-number">3</div>
+                        <div class="love-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3>Caballerosidad y amor</h3>
+                        <p>Hay que tratarla con respeto y cariño, como la princesa hermosa que es.</p>
+                    </div>
+                    
+                    <div class="love-card" data-step="4">
+                        <div class="love-number">4</div>
+                        <div class="love-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Fidelidad</h3>
+                        <p>Respetarla y hacerle saber que esta en una relacion sana y de confianza</p>
+                    </div>
+                </div>
+                
+                <!-- PROMESA DE DIEGO -->
+                <div class="diego-promise">
+                    <h3><i class="fas fa-heart"></i> Mi Promesa para Ti <i class="fas fa-heart"></i></h3>
+                    <p> ...... :c </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección de Comida que NO le gusta -->
+        <section class="food-section">
+            <div class="notes-content">
+                <h2 class="notes-title">Comida que NO le gusta <span class="water-emoji">🚫🍽️</span></h2>
+                <p class="section-subtitle">Para tener en cuenta cuando salgamos a comer:</p>
+                
+                <div class="food-grid">
+                    <div class="dislike-card">
+                        <div class="dislike-icon">
+                            <i class="fas fa-fish"></i>
+                        </div>
+                        <h3>Comida del mar</h3>
+                        <p>Pescado, mariscos, etc.</p>
+                    </div>
+                    
+                    <div class="dislike-card">
+                        <div class="dislike-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3>Comida asiática</h3>
+                        <p>Sushi, ramen, etc.</p>
+                    </div>
+                    
+                    <div class="dislike-card">
+                        <div class="dislike-icon">
+                            <i class="fas fa-drumstick-bite"></i>
+                        </div>
+                        <h3>Discada</h3>
+                        <p>Plato norteño</p>
+                    </div>
+                    
+                    <div class="dislike-card">
+                        <div class="dislike-icon">
+                            <i class="fas fa-bacon"></i>
+                        </div>
+                        <h3>Cerdo</h3>
+                        <p>En ninguna comida</p>
+                    </div>
+                    
+                    <div class="dislike-card">
+                        <div class="dislike-icon">
+                            <i class="fas fa-drumstick-bite"></i>
+                        </div>
+                        <h3>Trompo</h3>
+                        <p>Tacos</p>
+                    </div>
+                </div>
+                
+                <div class="restaurant-tip">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Cuando vayamos a un restaurante, mejor pizza o algo que no sea de esta lista 😊</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- NUEVA SECCIÓN: Dibuja para Mich (MEJORADA) -->
+        <section class="drawing-section">
+            <div class="notes-content">
+                <h2 class="notes-title">Dibuja para nosotros<span class="water-emoji">🎨💖</span></h2>
+                <p class="section-subtitle">Dibuja algo lindo, lo que tu quieras, este pizarron es tuyo</p>
+
+                <div class="drawing-instructions">
+                    <h3><i class="fas fa-lightbulb"></i> Instrucciones jeje:</h3>
+                    <ul>
+                        <li>Selecciona un color y un tamaño de pincel</li>
+                        <li>Haz clic y arrastra sobre la pizarra para dibujar</li>
+                        <li>Usa Ctrl+Z para deshacer o Ctrl+Y para rehacer</li>
+                        <li>Presiona "Guardar dibujo" para descargarlo y enviármelo</li>
+                        <li>Los corazones y textos se pueden arrastrar y redimensionar</li>
+                    </ul>
+                </div>
+                
+                <div class="drawing-message">
+                    <h3><i class="fas fa-comment-heart"></i> Mensaje</h3>
+                    <p>Cuando termines tu dibujo, guárdalo y mándamelo para verlo😃.</p>
+                </div>
+                
+                <!-- Herramientas combinadas -->
+                <div class="tool-combined">
+                    <div class="tool-group">
+                        <h3><i class="fas fa-paint-brush"></i> Tamaño de pincel/borrador</h3>
+                        <div class="brush-sizes" style="display: flex; justify-content: center; gap: 10px;">
+                            <button class="brush-btn" data-size="1">Muy fino</button>
+                            <button class="brush-btn" data-size="3">Fino</button>
+                            <button class="brush-btn active" data-size="5">Medio</button>
+                            <button class="brush-btn" data-size="10">Grueso</button>
+                            <button class="brush-btn" data-size="20">Muy grueso</button>
+                        </div>
+                        <div class="eraser-indicator" id="eraserIndicator" style="display: none; margin-top: 10px; color: #ff6b6b; font-size: 0.9rem; text-align: center;">
+                            <i class="fas fa-eraser"></i> Tamaño actual del borrador: <span id="currentEraserSize">5</span>px
+                        </div>
+                    </div>
+                    
+                    <div class="tool-group">
+                        <h3><i class="fas fa-expand-alt"></i> Tamaño de pizarra</h3>
+                        <div class="quick-tools" style="display: flex; justify-content: center; gap: 10px;">
+                            <button class="quick-tool-btn" data-width="600" data-height="400">Normal</button>
+                            <button class="quick-tool-btn" data-width="800" data-height="500">Grande</button>
+                            <button class="quick-tool-btn" data-width="1000" data-height="600">Extra grande</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Herramientas principales -->
+                <div class="drawing-tools">
+                    <!-- Colores -->
+                    <div class="tool-section">
+                        <h3><i class="fas fa-palette"></i> Colores</h3>
+                        <div class="color-picker">
+                            <button class="color-btn" style="background-color: #ff6b8b;" data-color="#ff6b8b" title="Rosa Mich"></button>
+                            <button class="color-btn" style="background-color: #ff1493;" data-color="#ff1493" title="Rosa fuerte"></button>
+                            <button class="color-btn" style="background-color: #ffb6c1;" data-color="#ffb6c1" title="Rosa claro"></button>
+                            <button class="color-btn" style="background-color: #98fb98;" data-color="#98fb98" title="Verde menta"></button>
+                            <button class="color-btn" style="background-color: #3cb371;" data-color="#3cb371" title="Verde esmeralda"></button>
+                            <button class="color-btn" style="background-color: #2e8b57;" data-color="#2e8b57" title="Verde bosque"></button>
+                            <button class="color-btn" style="background-color: #ff8e6b;" data-color="#ff8e6b" title="Coral"></button>
+                            <button class="color-btn" style="background-color: #ffd700;" data-color="#ffd700" title="Dorado"></button>
+                            <button class="color-btn" style="background-color: #9370db;" data-color="#9370db" title="Púrpura"></button>
+                            <button class="color-btn" style="background-color: #4169e1;" data-color="#4169e1" title="Azul real"></button>
+                            <button class="color-btn" style="background-color: #ff4500;" data-color="#ff4500" title="Rojo naranja"></button>
+                            <button class="color-btn" style="background-color: #000000;" data-color="#000000" title="Negro"></button>
+                            <button class="color-btn" style="background-color: #ffffff; border: 1px solid #ccc;" data-color="#ffffff" title="Blanco"></button>
+                            <!-- Paleta de colores adicional después del borrador -->
+                            <button class="color-btn" style="background-color: #800080;" data-color="#800080" title="Púrpura oscuro"></button>
+                            <button class="color-btn" style="background-color: #ff00ff;" data-color="#ff00ff" title="Fucsia"></button>
+                            <button class="color-btn" style="background-color: #00ffff;" data-color="#00ffff" title="Cian"></button>
+                            <button class="color-btn" style="background-color: #008080;" data-color="#008080" title="Verde azulado"></button>
+                            <button class="color-btn" style="background-color: #a52a2a;" data-color="#a52a2a" title="Marrón"></button>
+                            <button class="color-btn" style="background-color: #deb887;" data-color="#deb887" title="Madera clara"></button>
+
+                            <button class="color-btn eraser" data-color="#ffffff" title="Borrador">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Acciones principales -->
+                    <div class="tool-section">
+                        <h3><i class="fas fa-tools"></i> Herramientas especiales</h3>
+                        <div class="action-buttons">
+                            <button class="action-btn" id="undoBtn"><i class="fas fa-undo"></i> Deshacer</button>
+                            <button class="action-btn" id="redoBtn"><i class="fas fa-redo"></i> Rehacer</button>
+                            <button class="action-btn" id="clearBtn"><i class="fas fa-trash"></i> Limpiar</button>
+                            <button class="action-btn" id="heartBtn"><i class="fas fa-heart"></i> Corazón</button>
+                            <button class="action-btn" id="textBtn"><i class="fas fa-font"></i> Texto</button>
+                            <button class="action-btn" id="fillBgBtn"><i class="fas fa-fill-drip"></i> Fondo</button>
+                            <button class="action-btn" id="saveBtn"><i class="fas fa-download"></i> Guardar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="drawing-board-container">
+                    <!-- Controles para corazón (ARRIBA) -->
+                    <div class="heart-controls" id="heartControls" style="display: none;">
+                        <h3><i class="fas fa-heart"></i> Agregar corazón</h3>
+                        <div class="heart-control-group">
+                            <div class="control-item">
+                                <label for="heartSize">Tamaño:</label>
+                                <input type="range" id="heartSize" min="20" max="150" value="60">
+                                <span id="heartSizeValue">60px</span>
+                            </div>
+                            <div class="control-item">
+                                <label for="heartColor">Color:</label>
+                                <input type="color" id="heartColor" value="#ff6b8b">
+                            </div>
+                            <div class="control-item">
+                                <button class="action-btn" id="placeHeartBtn" disabled><i class="fas fa-check"></i> Colocar aquí</button>
+                                <button class="action-btn cancel-btn" id="cancelHeartBtn"><i class="fas fa-times"></i> Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Controles para texto (ARRIBA) -->
+                    <div class="text-controls" id="textControls" style="display: none;">
+                        <h3><i class="fas fa-font"></i> Agregar texto</h3>
+                        <div class="text-control-group">
+                            <div class="control-item">
+                                <input type="text" id="textInput" placeholder="Escribe algo...">
+                            </div>
+                            <div class="control-item">
+                                <label for="textSize">Tamaño:</label>
+                                <input type="range" id="textSize" min="12" max="60" value="24">
+                                <span id="textSizeValue">24px</span>
+                            </div>
+                            <div class="control-item">
+                                <label for="textColor">Color:</label>
+                                <input type="color" id="textColor" value="#ff6b8b">
+                            </div>
+                            <div class="control-item">
+                                <button class="action-btn" id="placeTextBtn" disabled><i class="fas fa-check"></i> Agregar</button>
+                                <button class="action-btn cancel-btn" id="cancelTextBtn"><i class="fas fa-times"></i> Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Controles para fondo (ARRIBA) -->
+                    <div class="fill-controls" id="fillControls" style="display: none;">
+                        <h3><i class="fas fa-fill-drip"></i> Rellenar fondo</h3>
+                        <div class="fill-control-group">
+                            <div class="control-item">
+                                <label for="fillColor">Color de fondo:</label>
+                                <input type="color" id="fillColor" value="#ffffff">
+                            </div>
+                            <div class="control-item">
+                                <button class="action-btn" id="applyFillBtn"><i class="fas fa-check"></i> Aplicar fondo</button>
+                                <button class="action-btn cancel-btn" id="cancelFillBtn"><i class="fas fa-times"></i> Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pizarra con guías -->
+                    <div class="drawing-board-wrapper">
+                        <canvas id="drawingCanvas" width="600" height="400"></canvas>
+                        <div class="canvas-overlay">
+                            <p>Dibuja aquí tu mensaje para Mich 💞</p>
+                        </div>
+                        <div id="positionGuide" class="position-guide"></div>
+                        <div id="eraserGuide" class="eraser-size-indicator">
+                            <div class="eraser-info" id="eraserInfo">Borrador: 5px</div>
+                        </div>
+                        <!-- Aquí se agregarán los elementos draggable -->
+                        <div id="draggableContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="simple-footer">
+        <div class="footer-content">
+            <p class="footer-text">©️Con cariño, Diego 💕 - Para Mich, mi persona especial</p>
+        </div>
+    </footer>
+
+    <script>
+        // Variables globales
+        let flowerPlanted = false;
+        
+        // Variables para el lienzo de dibujo
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentColor = '#ff6b8b';
+        let currentBrushSize = 5;
+        let canvas, ctx;
+        let isErasing = false;
+        let drawingHistory = [];
+        let historyIndex = -1;
+        let isPlacingHeart = false;
+        let isAddingText = false;
+        let isFillingBg = false;
+        let textPosition = { x: 0, y: 0 };
+        let heartPosition = { x: 0, y: 0 };
+        let positionGuide = null;
+        let eraserGuide = null;
+        let eraserInfo = null;
+        let currentSelectedElement = null;
+        let heartPositionSelected = false;
+        let textPositionSelected = false;
+        let draggableElementsData = [];
+        let originalCanvasState = null;
+        let draggableElements = new Map(); // Nuevo: para rastrear elementos draggable
+        
+        // Efecto de escritura en el título
+        document.addEventListener('DOMContentLoaded', function() {
+            const title = document.querySelector('.cursive-title');
+            const originalText = title.textContent;
+            title.textContent = '';
+            
+            let i = 0;
+            function typeWriter() {
+                if (i < originalText.length) {
+                    title.textContent += originalText.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                }
+            }
+            
+            setTimeout(typeWriter, 500);
+            
+            // Tooltips para badges
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                const tooltipText = badge.getAttribute('data-tooltip');
+                if (tooltipText) {
+                    badge.addEventListener('mouseenter', function(e) {
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.textContent = tooltipText;
+                        document.body.appendChild(tooltip);
+                        
+                        const rect = this.getBoundingClientRect();
+                        tooltip.style.left = (rect.left + rect.width/2 - tooltip.offsetWidth/2) + 'px';
+                        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+                        
+                        this.tooltipElement = tooltip;
+                    });
+                    
+                    badge.addEventListener('mouseleave', function() {
+                        if (this.tooltipElement && this.tooltipElement.parentNode) {
+                            this.tooltipElement.remove();
+                        }
+                    });
+                }
+            });
+            
+            // Efecto hover en tarjetas
+            const cards = document.querySelectorAll('.love-card, .band-card, .dislike-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Configurar colores rosas para los números de las tarjetas de amor
+            const loveNumbers = document.querySelectorAll('.love-number');
+            loveNumbers.forEach(number => {
+                number.style.background = 'linear-gradient(135deg, #ff6b8b, #ff8e6b)';
+            });
+            
+            // Inicializar lienzo de dibujo
+            initDrawingCanvas();
+            
+            // Detectar clics fuera para deseleccionar
+            document.addEventListener('click', function(e) {
+                // Si hacemos clic fuera de un elemento draggable
+                const clickedElement = e.target;
+                const isClickOnDraggable = clickedElement.closest('.draggable-element');
+                const isClickOnHandle = clickedElement.closest('.drag-handle') || 
+                                       clickedElement.closest('.delete-handle') || 
+                                       clickedElement.closest('.resize-handle');
+                
+                if (!isClickOnDraggable && !isClickOnHandle && currentSelectedElement) {
+                    deselectAllElements();
+                }
+            });
+            
+            // Detectar clics fuera para cancelar modos
+            document.addEventListener('click', function(e) {
+                const isClickOnCanvas = e.target.closest('#drawingCanvas') || 
+                                       e.target.closest('.drawing-board-wrapper');
+                const isClickOnControls = e.target.closest('#heartControls') || 
+                                         e.target.closest('#textControls') || 
+                                         e.target.closest('#fillControls') ||
+                                         e.target.closest('#heartBtn') ||
+                                         e.target.closest('#textBtn') ||
+                                         e.target.closest('#fillBgBtn');
+                
+                if ((isPlacingHeart || isAddingText) && !isClickOnCanvas && !isClickOnControls) {
+                    if (isPlacingHeart) cancelHeartMode();
+                    if (isAddingText) cancelTextMode();
+                }
+            });
+        });
+        
+        // Funciones para la canción
+        function openYouTube() {
+            window.open('https://www.youtube.com/watch?v=vVC-oWl_uVQ', '_blank');
+            showNotification('Abriendo en YouTube 🎵');
+        }
+
+        function openSpotify() {
+            window.open('https://open.spotify.com/search/Caifanes%20No%20Dejes%20Que', '_blank');
+            showNotification('Buscando en Spotify 🎶');
+        }
+        
+        // Crecimiento interactivo de flor
+        function growFlower() {
+            if (flowerPlanted) {
+                showNotification('¡Ya plantaste un lirio para Mich! 🌸💕');
+                return;
+            }
+            
+            const flowerGrowth = document.getElementById('flowerGrowth');
+            const messageContainer = document.getElementById('flowerMessageContainer');
+            const plantBtn = document.getElementById('plantLilyBtn');
+            
+            flowerGrowth.innerHTML = '';
+            messageContainer.innerHTML = '';
+            
+            // Deshabilitar botón
+            flowerPlanted = true;
+            plantBtn.disabled = true;
+            plantBtn.innerHTML = '<i class="fas fa-check"></i> ¡Lirio plantado!';
+            plantBtn.style.background = 'linear-gradient(135deg, #3cb371, #2e8b57)';
+            plantBtn.style.cursor = 'default';
+            
+            // Crear tallo
+            const stem = document.createElement('div');
+            stem.className = 'flower-stem';
+            flowerGrowth.appendChild(stem);
+            
+            // Crear hojas
+            const leaf1 = document.createElement('div');
+            leaf1.className = 'flower-leaf leaf-left';
+            flowerGrowth.appendChild(leaf1);
+            
+            const leaf2 = document.createElement('div');
+            leaf2.className = 'flower-leaf leaf-right';
+            flowerGrowth.appendChild(leaf2);
+            
+            // Crear flor
+            const flowerContainer = document.createElement('div');
+            flowerContainer.className = 'flower-bloom';
+            flowerGrowth.appendChild(flowerContainer);
+            
+            // Crear pétalos
+            for (let i = 0; i < 6; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'flower-petal';
+                petal.style.transform = `rotate(${i * 60}deg)`;
+                flowerContainer.appendChild(petal);
+            }
+            
+            // Crear centro
+            const flowerCenter = document.createElement('div');
+            flowerCenter.className = 'flower-center';
+            flowerCenter.innerHTML = '<i class="fas fa-heart"></i>';
+            flowerCenter.style.display = 'flex';
+            flowerCenter.style.alignItems = 'center';
+            flowerCenter.style.justifyContent = 'center';
+            flowerContainer.appendChild(flowerCenter);
+            
+            // Mensaje
+            setTimeout(() => {
+                const message = document.createElement('div');
+                message.className = 'flower-message-separate';
+                message.innerHTML = '<p>¡Un lirio blanco cultivado especialmente para ti Mich! 💕🌸<br><small>Tu lirio especial florecerá aquí para siempre</small></p>';
+                messageContainer.appendChild(message);
+            }, 2500);
+            
+            // Efecto de confeti
+            createConfetti();
+            
+            showNotification('¡Lirio plantado exitosamente! 🌸💚');
+        }
+        
+        // Crear efecto de confeti
+        function createConfetti() {
+            const colors = ['#98fb98', '#3cb371', '#2e8b57', '#90ee90', '#ffffff', '#ff6b8b'];
+            
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    
+                    const x = Math.random() * window.innerWidth;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.backgroundColor = color;
+                    
+                    const isHeart = Math.random() > 0.7;
+                    if (isHeart) {
+                        confetti.innerHTML = '💚';
+                        confetti.style.fontSize = (15 + Math.random() * 20) + 'px';
+                        confetti.style.backgroundColor = 'transparent';
+                        confetti.style.width = 'auto';
+                        confetti.style.height = 'auto';
+                    } else {
+                        const size = 5 + Math.random() * 10;
+                        confetti.style.width = size + 'px';
+                        confetti.style.height = size + 'px';
+                        confetti.style.borderRadius = '50%';
+                    }
+                    
+                    confetti.style.left = x + 'px';
+                    confetti.style.top = '-20px';
+                    
+                    const duration = 1 + Math.random() * 2;
+                    confetti.style.animation = `fall ${duration}s linear forwards`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.remove();
+                        }
+                    }, duration * 1000);
+                }, i * 30);
+            }
+        }
+        
+        // SISTEMA DE DIBUJO - CORRECCIONES ESPECÍFICAS
+        function initDrawingCanvas() {
+            canvas = document.getElementById('drawingCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Configurar guía de posición
+            positionGuide = document.getElementById('positionGuide');
+            eraserGuide = document.getElementById('eraserGuide');
+            eraserInfo = document.getElementById('eraserInfo');
+            
+            // Guardar estado original del canvas
+            originalCanvasState = {
+                width: canvas.width,
+                height: canvas.height,
+                data: null
+            };
+            
+            // Configurar canvas
+            setupCanvas();
+            
+            // Configurar botones de colores
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.getAttribute('data-color');
+                    isErasing = this.classList.contains('eraser');
+                    
+                    // Mostrar/ocultar indicador de borrador
+                    const eraserIndicator = document.getElementById('eraserIndicator');
+                    if (isErasing) {
+                        eraserIndicator.style.display = 'block';
+                        document.getElementById('currentEraserSize').textContent = currentBrushSize;
+                        ctx.globalCompositeOperation = 'destination-out';
+                        updateEraserInfo();
+                    } else {
+                        eraserIndicator.style.display = 'none';
+                        ctx.globalCompositeOperation = 'source-over';
+                        hideEraserGuide();
+                    }
+                });
+            });
+            
+            // Configurar botones de tamaño de pincel
+            document.querySelectorAll('.brush-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.brush-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentBrushSize = parseInt(this.getAttribute('data-size'));
+                    
+                    // Actualizar indicador de borrador si está activo
+                    if (isErasing) {
+                        document.getElementById('currentEraserSize').textContent = currentBrushSize;
+                        updateEraserInfo();
+                    }
+                });
+            });
+            
+            // Configurar botones de tamaño de canvas - CORREGIDO Y CENTRADO
+            document.querySelectorAll('.quick-tool-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const width = parseInt(this.getAttribute('data-width'));
+                    const height = parseInt(this.getAttribute('data-height'));
+                    resizeCanvasWithContent(width, height);
+                    showNotification(`Pizarra cambiada a ${width}x${height} 📐`);
+                });
+            });
+            
+            // Configurar botones de acción
+            document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+            document.getElementById('saveBtn').addEventListener('click', saveDrawing);
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('redoBtn').addEventListener('click', redo);
+            document.getElementById('textBtn').addEventListener('click', startTextMode);
+            document.getElementById('fillBgBtn').addEventListener('click', startFillMode);
+            document.getElementById('heartBtn').addEventListener('click', startHeartMode);
+            
+            // Configurar corazón
+            document.getElementById('placeHeartBtn').addEventListener('click', placeHeart);
+            document.getElementById('cancelHeartBtn').addEventListener('click', cancelHeartMode);
+            document.getElementById('heartSize').addEventListener('input', function() {
+                document.getElementById('heartSizeValue').textContent = this.value + 'px';
+            });
+            
+            // Configurar texto
+            document.getElementById('placeTextBtn').addEventListener('click', placeText);
+            document.getElementById('cancelTextBtn').addEventListener('click', cancelTextMode);
+            document.getElementById('textSize').addEventListener('input', function() {
+                document.getElementById('textSizeValue').textContent = this.value + 'px';
+            });
+            
+            // Configurar fondo
+            document.getElementById('applyFillBtn').addEventListener('click', applyFill);
+            document.getElementById('cancelFillBtn').addEventListener('click', cancelFillMode);
+            
+            // Atajos de teclado
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                    e.preventDefault();
+                    redo();
+                }
+                if (e.key === 'Escape') {
+                    cancelHeartMode();
+                    cancelTextMode();
+                    cancelFillMode();
+                    deselectAllElements();
+                }
+            });
+            
+            // Activar primer color y tamaño de pincel
+            document.querySelector('.color-btn').click();
+            document.querySelector('.brush-btn.active').click();
+        }
+        
+        function setupCanvas() {
+            // Ajustar tamaño del canvas
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Configurar fondo blanco
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Guardar estado inicial
+            saveState();
+            
+            // Eventos del canvas
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Eventos táctiles
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            // Eventos para colocar corazón/texto CON POSICIÓN FIJA
+            canvas.addEventListener('click', function(e) {
+                if (isPlacingHeart) {
+                    const pos = getMousePos(e);
+                    heartPosition.x = pos.x;
+                    heartPosition.y = pos.y;
+                    heartPositionSelected = true;
+                    // La guía se queda fija en esta posición
+                    updatePositionGuide(pos.x, pos.y);
+                    document.getElementById('placeHeartBtn').disabled = false;
+                    showNotification('Posición seleccionada. Configura el corazón y presiona "Colocar aquí"');
+                } else if (isAddingText) {
+                    const pos = getMousePos(e);
+                    textPosition.x = pos.x;
+                    textPosition.y = pos.y;
+                    textPositionSelected = true;
+                    // La guía se queda fija en esta posición
+                    updatePositionGuide(pos.x, pos.y);
+                    document.getElementById('placeTextBtn').disabled = false;
+                    showNotification('Posición seleccionada. Escribe tu texto y presiona "Agregar"');
+                }
+            });
+            
+            // Eventos para mover la guía SOLO si no se ha seleccionado posición
+            canvas.addEventListener('mousemove', function(e) {
+                const pos = getMousePos(e);
+                
+                // Mostrar guía del borrador si está activo
+                if (isErasing) {
+                    updateEraserGuide(pos.x, pos.y);
+                }
+                
+                if (isPlacingHeart && !heartPositionSelected) {
+                    updatePositionGuide(pos.x, pos.y);
+                } else if (isAddingText && !textPositionSelected) {
+                    updatePositionGuide(pos.x, pos.y);
+                }
+            });
+        }
+        
+        function updatePositionGuide(x, y) {
+            if (!positionGuide) return;
+            
+            const size = isPlacingHeart ? parseInt(document.getElementById('heartSize').value) : 30;
+            
+            positionGuide.style.display = 'block';
+            positionGuide.style.left = (x - size/2) + 'px';
+            positionGuide.style.top = (y - size/2) + 'px';
+            positionGuide.style.width = size + 'px';
+            positionGuide.style.height = size + 'px';
+            positionGuide.style.borderRadius = isPlacingHeart ? '50%' : '0';
+            positionGuide.style.border = isPlacingHeart ? 
+                '2px dashed #ff6b8b' : '2px dashed #4169e1';
+        }
+        
+        function updateEraserGuide(x, y) {
+            if (!eraserGuide || !eraserInfo) return;
+            
+            const size = currentBrushSize * 2;
+            
+            eraserGuide.style.display = 'block';
+            eraserGuide.style.left = (x - size/2) + 'px';
+            eraserGuide.style.top = (y - size/2) + 'px';
+            eraserGuide.style.width = size + 'px';
+            eraserGuide.style.height = size + 'px';
+            
+            // Actualizar texto del indicador
+            eraserInfo.textContent = `Borrador: ${currentBrushSize}px`;
+        }
+        
+        function updateEraserInfo() {
+            if (eraserInfo) {
+                eraserInfo.textContent = `Borrador: ${currentBrushSize}px`;
+            }
+        }
+        
+        function hideEraserGuide() {
+            if (eraserGuide) {
+                eraserGuide.style.display = 'none';
+            }
+        }
+        
+        function hidePositionGuide() {
+            if (positionGuide) {
+                positionGuide.style.display = 'none';
+            }
+        }
+        
+        function deselectAllElements() {
+            document.querySelectorAll('.draggable-element').forEach(el => {
+                el.classList.remove('selected');
+            });
+            currentSelectedElement = null;
+        }
+        
+        function selectElement(element) {
+            deselectAllElements();
+            element.classList.add('selected');
+            currentSelectedElement = element;
+        }
+        
+        // FUNCIÓN CORREGIDA PARA REDIMENSIONAR CANVAS CON CONTENIDO
+        function resizeCanvasWithContent(newWidth, newHeight) {
+            // Guardar el contenido actual del canvas en una imagen
+            const currentImage = new Image();
+            currentImage.src = canvas.toDataURL();
+            
+            // Guardar elementos draggable actuales
+            const currentElements = [];
+            document.querySelectorAll('.draggable-element').forEach(el => {
+                const style = window.getComputedStyle(el);
+                const id = 'draggable-' + Date.now() + Math.random();
+                el.id = id;
+                currentElements.push({
+                    id: id,
+                    element: el.cloneNode(true),
+                    left: parseFloat(style.left) || 0,
+                    top: parseFloat(style.top) || 0,
+                    fontSize: parseFloat(style.fontSize) || 24,
+                    color: style.color,
+                    text: el.textContent,
+                    type: el.classList.contains('draggable-heart') ? 'heart' : 'text'
+                });
+            });
+            
+            // Cambiar tamaño del canvas
+            const oldWidth = canvas.width;
+            const oldHeight = canvas.height;
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            
+            // Ajustar el contenedor
+            document.querySelector('.drawing-board-wrapper').style.height = newHeight + 'px';
+            
+            // Cuando la imagen se cargue, dibujarla en el nuevo canvas
+            currentImage.onload = function() {
+                // Limpiar canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Calcular escala
+                const scaleX = newWidth / oldWidth;
+                const scaleY = newHeight / oldHeight;
+                
+                // Dibujar la imagen escalada
+                ctx.save();
+                ctx.scale(scaleX, scaleY);
+                ctx.drawImage(currentImage, 0, 0);
+                ctx.restore();
+                
+                // Limpiar elementos draggable existentes
+                document.getElementById('draggableContainer').innerHTML = '';
+                draggableElements.clear();
+                
+                // Recrear elementos draggable con nuevas posiciones escaladas
+                currentElements.forEach(item => {
+                    const scaledLeft = item.left * scaleX;
+                    const scaledTop = item.top * scaleY;
+                    const scaledFontSize = item.fontSize * Math.min(scaleX, scaleY);
+                    
+                    if (item.type === 'heart') {
+                        createDraggableHeart(scaledLeft, scaledTop, scaledFontSize, item.color, true, item.id);
+                    } else if (item.type === 'text') {
+                        createDraggableText(scaledLeft, scaledTop, item.text, scaledFontSize, item.color, true, item.id);
+                    }
+                });
+                
+                // Guardar estado
+                saveState();
+            };
+        }
+        
+        function startDrawing(e) {
+            if (isPlacingHeart || isAddingText || isFillingBg) return;
+            
+            isDrawing = true;
+            saveState();
+            const pos = getMousePos(e);
+            [lastX, lastY] = [pos.x, pos.y];
+        }
+        
+        function draw(e) {
+            if (!isDrawing || isPlacingHeart || isAddingText || isFillingBg) return;
+            
+            e.preventDefault();
+            const pos = getMousePos(e);
+            
+            ctx.beginPath();
+            ctx.lineWidth = currentBrushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = isErasing ? 'rgba(0,0,0,1)' : currentColor;
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            
+            [lastX, lastY] = [pos.x, pos.y];
+        }
+        
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveState();
+            }
+        }
+        
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let x, y;
+            
+            if (e.type.includes('touch')) {
+                x = e.touches[0].clientX - rect.left;
+                y = e.touches[0].clientY - rect.top;
+            } else {
+                x = e.clientX - rect.left;
+                y = e.clientY - rect.top;
+            }
+            
+            // Escalar coordenadas si el canvas ha sido redimensionado
+            x *= canvas.width / rect.width;
+            y *= canvas.height / rect.height;
+            
+            return { x, y };
+        }
+        
+        function handleTouchStart(e) {
+            if (e.touches.length === 1 && !isPlacingHeart && !isAddingText && !isFillingBg) {
+                e.preventDefault();
+                startDrawing(e);
+            }
+        }
+        
+        function handleTouchMove(e) {
+            if (e.touches.length === 1 && !isPlacingHeart && !isAddingText && !isFillingBg) {
+                e.preventDefault();
+                draw(e);
+            }
+        }
+        
+        // FUNCIÓN CORREGIDA para guardar estado
+        function saveState() {
+            // Limpiar historial después del índice actual
+            if (historyIndex < drawingHistory.length - 1) {
+                drawingHistory = drawingHistory.slice(0, historyIndex + 1);
+                draggableElementsData = draggableElementsData.slice(0, historyIndex + 1);
+            }
+            
+            // Guardar la imagen del canvas
+            const canvasImage = canvas.toDataURL();
+            
+            // Guardar datos de elementos draggable
+            const currentDraggableData = [];
+            document.querySelectorAll('.draggable-element').forEach(el => {
+                const style = window.getComputedStyle(el);
+                const id = el.id || 'draggable-' + Date.now() + Math.random();
+                el.id = id;
+                const data = {
+                    id: id,
+                    type: el.classList.contains('draggable-heart') ? 'heart' : 'text',
+                    left: parseFloat(style.left) || 0,
+                    top: parseFloat(style.top) || 0,
+                    fontSize: parseFloat(style.fontSize) || 24,
+                    color: style.color || '#ff6b8b',
+                    text: el.textContent || '❤️',
+                    zIndex: style.zIndex || '1000'
+                };
+                currentDraggableData.push(data);
+                draggableElements.set(id, el);
+            });
+            
+            // Guardar ambos
+            drawingHistory.push(canvasImage);
+            draggableElementsData.push(currentDraggableData);
+            
+            historyIndex++;
+            
+            // Limitar historial
+            if (drawingHistory.length > 50) {
+                drawingHistory.shift();
+                draggableElementsData.shift();
+                historyIndex--;
+            }
+            
+            updateUndoRedoButtons();
+        }
+        
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState();
+                showNotification('Deshecho ↶');
+            } else {
+                showNotification('No hay más acciones para deshacer');
+            }
+        }
+        
+        function redo() {
+            if (historyIndex < drawingHistory.length - 1) {
+                historyIndex++;
+                restoreState();
+                showNotification('Rehecho ↷');
+            } else {
+                showNotification('No hay más acciones para rehacer');
+            }
+        }
+        
+        // FUNCIÓN CORREGIDA para restaurar estado
+        function restoreState() {
+            if (historyIndex < 0 || historyIndex >= drawingHistory.length) return;
+            
+            // Restaurar canvas
+            const img = new Image();
+            img.onload = function() {
+                // Limpiar canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Dibujar la imagen del historial
+                ctx.drawImage(img, 0, 0);
+                
+                // Limpiar elementos draggable actuales
+                document.getElementById('draggableContainer').innerHTML = '';
+                draggableElements.clear();
+                deselectAllElements();
+                
+                // Restaurar elementos draggable desde datos guardados
+                if (draggableElementsData[historyIndex]) {
+                    draggableElementsData[historyIndex].forEach(item => {
+                        if (item.type === 'heart') {
+                            createDraggableHeart(item.left, item.top, item.fontSize, item.color, true, item.id);
+                        } else if (item.type === 'text') {
+                            createDraggableText(item.left, item.top, item.text, item.fontSize, item.color, true, item.id);
+                        }
+                    });
+                }
+            };
+            img.src = drawingHistory[historyIndex];
+            
+            updateUndoRedoButtons();
+        }
+        
+        function updateUndoRedoButtons() {
+            document.getElementById('undoBtn').disabled = historyIndex <= 0;
+            document.getElementById('redoBtn').disabled = historyIndex >= drawingHistory.length - 1;
+        }
+        
+        function clearCanvas() {
+            if (confirm('¿Estás seguro de que quieres borrar todo el dibujo?')) {
+                // Limpiar elementos draggable
+                document.getElementById('draggableContainer').innerHTML = '';
+                draggableElements.clear();
+                deselectAllElements();
+                
+                // Guardar estado antes de limpiar
+                saveState();
+                
+                // Limpiar canvas
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                showNotification('Lienzo limpiado ✨');
+            }
+        }
+        
+        function saveDrawing() {
+            // Primero, ocultar todos los controles de elementos draggable
+            document.querySelectorAll('.draggable-element').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // También ocultar guías
+            hidePositionGuide();
+            hideEraserGuide();
+            
+            // Crear un canvas temporal para combinar todo
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            // Primero dibujar el fondo del canvas principal
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // Luego dibujar los elementos draggable
+            document.querySelectorAll('.draggable-element').forEach(el => {
+                if (el.classList.contains('draggable-heart')) {
+                    const style = window.getComputedStyle(el);
+                    const fontSize = parseFloat(style.fontSize);
+                    const color = style.color;
+                    const x = parseFloat(style.left);
+                    const y = parseFloat(style.top);
+                    
+                    tempCtx.save();
+                    tempCtx.font = `${fontSize}px Arial`;
+                    tempCtx.fillStyle = color;
+                    tempCtx.textAlign = 'center';
+                    tempCtx.textBaseline = 'middle';
+                    tempCtx.fillText('❤️', x, y);
+                    tempCtx.restore();
+                } else if (el.classList.contains('draggable-text')) {
+                    const style = window.getComputedStyle(el);
+                    const fontSize = parseFloat(style.fontSize);
+                    const color = style.color;
+                    const x = parseFloat(style.left);
+                    const y = parseFloat(style.top);
+                    const text = el.textContent;
+                    const bgColor = style.backgroundColor;
+                    const padding = 10;
+                    
+                    tempCtx.save();
+                    tempCtx.font = `${fontSize}px 'Dancing Script', cursive`;
+                    tempCtx.fillStyle = bgColor;
+                    
+                    // Medir texto
+                    const metrics = tempCtx.measureText(text);
+                    const textWidth = metrics.width;
+                    const textHeight = fontSize;
+                    
+                    // Dibujar fondo
+                    tempCtx.fillRect(x - padding, y - textHeight/2 - padding, 
+                                    textWidth + padding*2, textHeight + padding*2);
+                    
+                    // Dibujar texto
+                    tempCtx.fillStyle = color;
+                    tempCtx.textAlign = 'left';
+                    tempCtx.textBaseline = 'middle';
+                    tempCtx.fillText(text, x, y);
+                    tempCtx.restore();
+                }
+            });
+            
+            // Esperar un momento y luego descargar
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = 'dibujo_bonito.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+                showNotification('¡Dibujo guardado como "dibujo_bonito.png"! 💾💕');
+            }, 100);
+        }
+        
+        function startHeartMode() {
+            isPlacingHeart = true;
+            isAddingText = false;
+            isFillingBg = false;
+            heartPositionSelected = false; // Resetear posición seleccionada
+            document.getElementById('heartControls').style.display = 'block';
+            document.getElementById('textControls').style.display = 'none';
+            document.getElementById('fillControls').style.display = 'none';
+            document.getElementById('placeHeartBtn').disabled = true;
+            document.getElementById('textInput').blur();
+            showNotification('Haz clic en la pizarra donde quieras colocar el corazón 💖');
+        }
+        
+        function cancelHeartMode() {
+            isPlacingHeart = false;
+            heartPositionSelected = false;
+            document.getElementById('heartControls').style.display = 'none';
+            document.getElementById('placeHeartBtn').disabled = true;
+            hidePositionGuide();
+        }
+        
+        function placeHeart() {
+            if (!heartPositionSelected) return;
+            
+            const size = parseInt(document.getElementById('heartSize').value);
+            const color = document.getElementById('heartColor').value;
+            
+            // Crear elemento draggable
+            createDraggableHeart(heartPosition.x, heartPosition.y, size, color);
+            
+            // Guardar estado
+            saveState();
+            
+            cancelHeartMode();
+            showNotification('¡Corazón dibujado para Mich! 💖');
+        }
+        
+        function createDraggableHeart(x, y, size, color, fromHistory = false, id = null) {
+            const container = document.getElementById('draggableContainer');
+            const heartDiv = document.createElement('div');
+            heartDiv.className = 'draggable-element draggable-heart';
+            heartDiv.innerHTML = '❤️';
+            heartDiv.style.left = x + 'px';
+            heartDiv.style.top = y + 'px';
+            heartDiv.style.fontSize = size + 'px';
+            heartDiv.style.color = color;
+            heartDiv.style.transform = 'translate(-50%, -50%)';
+            heartDiv.style.userSelect = 'none';
+            heartDiv.style.zIndex = '1000';
+            
+            // Asignar ID único
+            if (!id) {
+                id = 'heart-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            }
+            heartDiv.id = id;
+            
+            // Agregar controles (inicialmente ocultos)
+            const dragHandle = document.createElement('div');
+            dragHandle.className = 'drag-handle';
+            dragHandle.innerHTML = '↔️';
+            heartDiv.appendChild(dragHandle);
+            
+            const deleteHandle = document.createElement('div');
+            deleteHandle.className = 'delete-handle';
+            deleteHandle.innerHTML = '✕';
+            heartDiv.appendChild(deleteHandle);
+            
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            heartDiv.appendChild(resizeHandle);
+            
+            // Configurar eventos (solo si no es desde historial)
+            if (!fromHistory) {
+                makeDraggable(heartDiv, dragHandle, resizeHandle, deleteHandle);
+            } else {
+                // Si es desde historial, también configurar eventos
+                makeDraggable(heartDiv, dragHandle, resizeHandle, deleteHandle);
+            }
+            
+            container.appendChild(heartDiv);
+            draggableElements.set(id, heartDiv);
+            
+            // Seleccionar automáticamente el nuevo elemento si no es desde historial
+            if (!fromHistory) {
+                selectElement(heartDiv);
+            }
+            
+            return heartDiv;
+        }
+        
+        function makeDraggable(element, dragHandle, resizeHandle, deleteHandle) {
+            let isDragging = false;
+            let isResizing = false;
+            let startX, startY, startLeft, startTop, startFontSize;
+            let dragOffset = { x: 0, y: 0 };
+            
+            // Evento para seleccionar al hacer clic en el elemento
+            element.addEventListener('mousedown', function(e) {
+                if (e.target === element || e.target === dragHandle || e.target === resizeHandle) {
+                    e.stopPropagation();
+                    selectElement(element);
+                    
+                    if (e.target === element || e.target === dragHandle) {
+                        startDrag(e);
+                    } else if (e.target === resizeHandle) {
+                        startResize(e);
+                    }
+                }
+            });
+            
+            // Evento para seleccionar al hacer clic en el handle de drag
+            dragHandle.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                selectElement(element);
+                startDrag(e);
+            });
+            
+            // Evento para resize
+            resizeHandle.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                selectElement(element);
+                startResize(e);
+            });
+            
+            // Evento para delete
+            deleteHandle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (confirm('¿Eliminar este elemento?')) {
+                    const elementId = element.id;
+                    element.remove();
+                    if (currentSelectedElement === element) {
+                        currentSelectedElement = null;
+                    }
+                    if (draggableElements.has(elementId)) {
+                        draggableElements.delete(elementId);
+                    }
+                    saveState();
+                }
+            });
+            
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                const rect = element.getBoundingClientRect();
+                const containerRect = document.querySelector('.drawing-board-wrapper').getBoundingClientRect();
+                dragOffset = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                startLeft = parseFloat(element.style.left) || 0;
+                startTop = parseFloat(element.style.top) || 0;
+                
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+            
+            function onDrag(e) {
+                if (!isDragging) return;
+                
+                const containerRect = document.querySelector('.drawing-board-wrapper').getBoundingClientRect();
+                let newX = e.clientX - containerRect.left - dragOffset.x;
+                let newY = e.clientY - containerRect.top - dragOffset.y;
+                
+                // Mantener dentro de los límites
+                const elementRect = element.getBoundingClientRect();
+                newX = Math.max(0, Math.min(newX, containerRect.width - elementRect.width));
+                newY = Math.max(0, Math.min(newY, containerRect.height - elementRect.height));
+                
+                element.style.left = newX + 'px';
+                element.style.top = newY + 'px';
+            }
+            
+            function stopDrag() {
+                if (isDragging) {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', onDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+                    saveState();
+                }
+            }
+            
+            function startResize(e) {
+                e.preventDefault();
+                isResizing = true;
+                startX = e.clientX;
+                startFontSize = parseInt(window.getComputedStyle(element).fontSize);
+                document.addEventListener('mousemove', onResize);
+                document.addEventListener('mouseup', stopResize);
+            }
+            
+            function onResize(e) {
+                if (!isResizing) return;
+                const deltaX = e.clientX - startX;
+                const newSize = Math.max(20, Math.min(150, startFontSize + deltaX));
+                
+                element.style.fontSize = newSize + 'px';
+            }
+            
+            function stopResize() {
+                if (isResizing) {
+                    isResizing = false;
+                    document.removeEventListener('mousemove', onResize);
+                    document.removeEventListener('mouseup', stopResize);
+                    saveState();
+                }
+            }
+            
+            // Permitir clics en el elemento sin interferir con el canvas
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        
+        function startTextMode() {
+            isAddingText = true;
+            isPlacingHeart = false;
+            isFillingBg = false;
+            textPositionSelected = false; // Resetear posición seleccionada
+            document.getElementById('textControls').style.display = 'block';
+            document.getElementById('heartControls').style.display = 'none';
+            document.getElementById('fillControls').style.display = 'none';
+            document.getElementById('placeTextBtn').disabled = true;
+            
+            // Configurar input
+            const textInput = document.getElementById('textInput');
+            textInput.value = '';
+            setTimeout(() => textInput.focus(), 100);
+            
+            showNotification('Haz clic en la pizarra donde quieras colocar el texto ✏️');
+        }
+        
+        function cancelTextMode() {
+            isAddingText = false;
+            textPositionSelected = false;
+            document.getElementById('textControls').style.display = 'none';
+            document.getElementById('placeTextBtn').disabled = true;
+            document.getElementById('textInput').value = '';
+            document.getElementById('textInput').blur();
+            hidePositionGuide();
+        }
+        
+        function placeText() {
+            if (!textPositionSelected) return;
+            
+            const text = document.getElementById('textInput').value;
+            if (!text.trim()) {
+                showNotification('Escribe algo primero 📝');
+                return;
+            }
+            
+            const size = parseInt(document.getElementById('textSize').value);
+            const color = document.getElementById('textColor').value;
+            
+            // Crear elemento draggable
+            createDraggableText(textPosition.x, textPosition.y, text, size, color);
+            
+            // Guardar estado
+            saveState();
+            
+            cancelTextMode();
+            showNotification('¡Texto agregado! 📝💕');
+        }
+        
+        function createDraggableText(x, y, text, size, color, fromHistory = false, id = null) {
+            const container = document.getElementById('draggableContainer');
+            const textDiv = document.createElement('div');
+            textDiv.className = 'draggable-element draggable-text';
+            textDiv.textContent = text;
+            textDiv.style.left = x + 'px';
+            textDiv.style.top = y + 'px';
+            textDiv.style.fontSize = size + 'px';
+            textDiv.style.color = color;
+            textDiv.style.fontFamily = "'Dancing Script', cursive";
+            textDiv.style.fontWeight = 'bold';
+            textDiv.style.padding = '10px';
+            textDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            textDiv.style.borderRadius = '10px';
+            textDiv.style.maxWidth = '300px';
+            textDiv.style.wordWrap = 'break-word';
+            textDiv.style.userSelect = 'none';
+            textDiv.style.cursor = 'move';
+            textDiv.style.zIndex = '1000';
+            
+            // Asignar ID único
+            if (!id) {
+                id = 'text-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            }
+            textDiv.id = id;
+            
+            // Agregar controles (inicialmente ocultos)
+            const dragHandle = document.createElement('div');
+            dragHandle.className = 'drag-handle';
+            dragHandle.innerHTML = '↔️';
+            textDiv.appendChild(dragHandle);
+            
+            const deleteHandle = document.createElement('div');
+            deleteHandle.className = 'delete-handle';
+            deleteHandle.innerHTML = '✕';
+            textDiv.appendChild(deleteHandle);
+            
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            textDiv.appendChild(resizeHandle);
+            
+            // Configurar eventos (solo si no es desde historial)
+            if (!fromHistory) {
+                makeDraggable(textDiv, dragHandle, resizeHandle, deleteHandle);
+            } else {
+                // Si es desde historial, también configurar eventos
+                makeDraggable(textDiv, dragHandle, resizeHandle, deleteHandle);
+            }
+            
+            container.appendChild(textDiv);
+            draggableElements.set(id, textDiv);
+            
+            // Seleccionar automáticamente el nuevo elemento si no es desde historial
+            if (!fromHistory) {
+                selectElement(textDiv);
+            }
+            
+            return textDiv;
+        }
+        
+        function startFillMode() {
+            isFillingBg = true;
+            isPlacingHeart = false;
+            isAddingText = false;
+            document.getElementById('fillControls').style.display = 'block';
+            document.getElementById('heartControls').style.display = 'none';
+            document.getElementById('textControls').style.display = 'none';
+            showNotification('Selecciona un color y presiona "Aplicar fondo" para rellenar 🎨');
+        }
+        
+        function cancelFillMode() {
+            isFillingBg = false;
+            document.getElementById('fillControls').style.display = 'none';
+        }
+        
+        function applyFill() {
+            if (!isFillingBg) return;
+            
+            saveState();
+            
+            const color = document.getElementById('fillColor').value;
+            
+            // Rellenar fondo PERO preservar los elementos draggable
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            cancelFillMode();
+            showNotification('¡Fondo rellenado! 🎨');
+        }
+        
+        function showNotification(text) {
+            // Remover notificaciones anteriores
+            const oldNotifications = document.querySelectorAll('.notification');
+            oldNotifications.forEach(notif => notif.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${text}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 2000);
+        }
+        
+        // Animación de corazones flotantes al cargar
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        createFloatingHeart();
+                    }, i * 200);
+                }
+            }, 1000);
+            
+            const profileFrame = document.querySelector('.profile-frame');
+            setInterval(() => {
+                profileFrame.style.boxShadow = `0 15px 35px rgba(46, 139, 87, ${0.15 + Math.random() * 0.1})`;
+            }, 3000);
+        });
+        
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = Math.random() > 0.5 ? '💚' : '💕';
+            heart.style.position = 'fixed';
+            heart.style.fontSize = (15 + Math.random() * 20) + 'px';
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.top = window.innerHeight + 'px';
+            heart.style.opacity = '0.6';
+            heart.style.zIndex = '9998';
+            heart.style.pointerEvents = 'none';
+            heart.style.transition = 'all 3s ease-in-out';
+            heart.style.textShadow = '0 0 5px rgba(0,0,0,0.1)';
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.style.top = '-50px';
+                heart.style.transform = `rotate(${Math.random() * 360}deg) translateX(${Math.random() * 50 - 25}px)`;
+                heart.style.opacity = '0';
+            }, 10);
+            
+            setTimeout(() => {
+                if (heart.parentNode) {
+                    heart.remove();
+                }
+            }, 3100);
+        }
+
+
+               // Protección adicional contra clic derecho y arrastre
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevenir clic derecho en toda la página
+            document.addEventListener('contextmenu', function(e) {
+                // Permitir clic derecho solo en elementos específicos si es necesario
+                if (!e.target.classList.contains('allow-context-menu')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }, false);
+            
+            // Prevenir arrastre de imágenes
+            document.addEventListener('dragstart', function(e) {
+                if (e.target.tagName === 'IMG') {
+                    e.preventDefault();
+                    return false;
+                }
+            }, false);
+            
+            // Prevenir selección de texto en fotos
+            document.addEventListener('selectstart', function(e) {
+                if (e.target.tagName === 'IMG' || 
+                    e.target.classList.contains('special-photo') ||
+                    e.target.classList.contains('profile-photo')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }, false);
+            
+            // Protección adicional con atributos HTML
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                // Añadir atributos para prevenir acciones no deseadas
+                img.setAttribute('draggable', 'false');
+                img.style.pointerEvents = 'none';
+                
+                // Añadir overlay de protección visual (opcional)
+                if (img.classList.contains('special-photo') || 
+                    img.classList.contains('profile-photo')) {
+                    const parent = img.parentElement;
+                    if (parent && !parent.querySelector('.photo-protection')) {
+                        const overlay = document.createElement('div');
+                        overlay.className = 'photo-protection';
+                        overlay.style.cssText = `
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            z-index: 10;
+                            cursor: default;
+                        `;
+                        parent.style.position = 'relative';
+                        parent.appendChild(overlay);
+                    }
+                }
+            });
+        });
+
+        // Función para mostrar mensaje cuando intentan copiar
+        document.addEventListener('copy', function(e) {
+            // Mostrar alerta solo si están copiando contenido de fotos
+            const selection = window.getSelection();
+            const selectedText = selection.toString();
+            
+            // Si hay texto seleccionado, permitir copia normal
+            // Solo prevenir si están intentando copiar algo relacionado con imágenes
+            if (selection.containsNode(document.querySelector('.photo-placeholder'), true) ||
+                selection.containsNode(document.querySelector('.photo-frame'), true)) {
+                e.preventDefault();
+                
+                // Opcional: Mostrar mensaje educado
+                const message = document.createElement('div');
+                message.textContent = '¡Las fotos son especiales y no se pueden copiar! 💕';
+                message.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(255, 107, 139, 0.9);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    z-index: 10000;
+                    font-family: 'Dancing Script', cursive;
+                    font-size: 1.2rem;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    animation: fadeInOut 2s ease;
+                `;
+                
+                document.body.appendChild(message);
+                
+                setTimeout(() => {
+                    message.style.animation = 'fadeOut 0.5s ease forwards';
+                    setTimeout(() => message.remove(), 500);
+                }, 1500);
+                
+                return false;
+            }
+        });
+
+        // Animación para el mensaje
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translate(-50%, -60%); }
+                15% { opacity: 1; transform: translate(-50%, -50%); }
+                85% { opacity: 1; transform: translate(-50%, -50%); }
+                100% { opacity: 0; transform: translate(-50%, -40%); }
+            }
+            
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
